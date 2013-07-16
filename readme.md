@@ -1,6 +1,8 @@
 # Revisionable
 
-Wouldn't it be nice to have a revision history for any model in your project, without having to do any work for it. By simply extending revisionable form your model, you can instantly have just that, and be able to display a history similar to this:
+Wouldn't it be nice to have a revision history for any model in your Laravel 4 project, without having to do any hard work for it?
+
+By simply extending Revisionable from your models, you can instantly have just that and be able to display a history similar to this:
 
 * Chris changed title from 'Something' to 'Something else'
 * Chris changed category from 'News' to 'Breaking news'
@@ -8,35 +10,28 @@ Wouldn't it be nice to have a revision history for any model in your project, wi
 
 So not only can you see a history of what happened, but who did what, so there's accountability.
 
-Revisionable is a laravel package that allows you to keep a revision history for your models without thinking. For some background and info, [see this article](http://www.chrisduell.com/blog/development/keeping-revisions-of-your-laravel-model-data/)
+Revisionable is a Laravel 4 package that allows you to keep a revision history for your models without thinking.
+
+For some background and info, [see this article](http://www.chrisduell.com/blog/development/keeping-revisions-of-your-laravel-model-data/)
 
 ## Installation
 
 Revisionable is installable via [composer](http://getcomposer.org/doc/00-intro.md), the details are on [packagist, here.](https://packagist.org/packages/maclof/revisionable)
 
-Add the following to the `require` section of your projects composer.json file:
+Add the following to the `require` section of your project's composer.json file:
 ```php
 "maclof/revisionable": "dev-master",
 ```
 
-Run composer update to download the package
+Then run composer update to download the package:
 ```
 php composer.phar update
 ```
 
-Finally, you'll also need to run migration on the package
+Finally, you'll also need to run the package migrations:
 ```
 php artisan migrate --package=maclof/revisionable
 ```
-
-## Docs
-
-* [Effortless revision history](#intro)
-* [More control](#control)
-* [Format output](#formatoutput)
-* [Load revision history](#loadhistory)
-* [Display history](#display)
-* [Contributing](#contributing)
 
 <a name="intro"></a>
 ## Effortless revision history
@@ -78,34 +73,6 @@ protected $dontKeepRevisionOf = array(
 ```
 
 > The `$keepRevisionOf` setting takes precendence over `$dontKeepRevisionOf`
-
-<a name="formatoutput"></a>
-## Format output
-
-In cases where you want to have control over the format of the output of the values, for example a boolean field, you can set them in the `$revisionFormattedFields` array in your model. e.g.,
-
-```php
-protected $revisionFormattedFields = array(
-    'title'  => 'string:<strong>%s</strong>',
-    'public' => 'boolean:No|Yes'
-);
-```
-
-### String
-To format a string, simply prefix the value with `string:` and be sure to include `%s` (this is where the actual value will appear in the formatted response), e.g.,
-
-```
-string:<strong>%s</strong>
-```
-
-### Boolean
-Booleans by default will display as a 0 or a 1, which is pretty bland and won't mean much to the end user, so this formatter can be used to output something a bit nicer. Prefix the value with `boolean:` and then add your false and true options separated by a pipe, e.g.,
-
-```
-boolean:No|Yes
-```
-
-> If you don't set a format for a certain field, it will default to simply being exactly what's in the database
 
 <a name="loadhistory"></a>
 ## Load revision history
@@ -187,5 +154,3 @@ $object->disableRevisionField(array('title', 'content')); // Disables title and 
 
 Contributions are encouraged and welcome; to keep things organised, all bugs and requests should be
 opened in the github issues tab for the main project, at [maclof/revisionable/issues](https://github.com/maclof/revisionable/issues)
-
-All pull requests should be made to the develop branch, so they can be tested before being merged into the master branch.
