@@ -1,4 +1,4 @@
-<?php namespace Venturecraft\Revisionable;
+<?php namespace Maclof\Revisionable;
 
 /**
  * FieldFormatter

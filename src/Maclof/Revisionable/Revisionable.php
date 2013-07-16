@@ -1,4 +1,4 @@
-<?php namespace Venturecraft\Revisionable;
+<?php namespace Maclof\Revisionable;
 
 /*
  * This file is part of the Revisionable package by Venture Craft
@@ -69,7 +69,7 @@ class Revisionable extends Eloquent
      */
     public function revisionHistory()
     {
-        return $this->morphMany('\Venturecraft\Revisionable\Revision', 'revisionable');
+        return $this->morphMany('\Maclof\Revisionable\Revision', 'revisionable');
     }
 
     /**
