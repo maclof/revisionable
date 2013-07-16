@@ -12,11 +12,11 @@ Revisionable is a laravel package that allows you to keep a revision history for
 
 ## Installation
 
-Revisionable is installable via [composer](http://getcomposer.org/doc/00-intro.md), the details are on [packagist, here.](https://packagist.org/packages/venturecraft/revisionable)
+Revisionable is installable via [composer](http://getcomposer.org/doc/00-intro.md), the details are on [packagist, here.](https://packagist.org/packages/maclof/revisionable)
 
 Add the following to the `require` section of your projects composer.json file:
 ```php
-"venturecraft/revisionable": "1.*",
+"maclof/revisionable": "1.*",
 ```
 
 Run composer update to download the package
@@ -26,7 +26,7 @@ php composer.phar update
 
 Finally, you'll also need to run migration on the package
 ```
-php artisan migrate --package=venturecraft/revisionable
+php artisan migrate --package=maclof/revisionable
 ```
 
 ## Docs
@@ -43,7 +43,7 @@ php artisan migrate --package=venturecraft/revisionable
 
 For any model that you want to keep a revision history for, include the revisionable namespace and extend revisionable instead of eloquent, e.g.,
 ```php
-use Venturecraft\Revisionable\Revisionable;
+use Maclof\Revisionable\Revisionable;
 
 class Article extends Revisionable { }
 ```
@@ -51,7 +51,7 @@ class Article extends Revisionable { }
 If needed, you can disable the revisioning by setting `$revisionEnabled` to false in your model. This can be handy if you want to temporarily disable revisioning, or if you want to create your own base model that extends revisionable, which all of your models extend, but you want to turn revisionable off for certain models.
 
 ```php
-use Venturecraft\Revisionable\Revisionable;
+use Maclof\Revisionable\Revisionable;
 
 class Article extends Revisionable
 {
@@ -145,7 +145,7 @@ This is used when the value (old or new) is the id of a foreign key relationship
 
 By default, it simply returns the ID of the model that was updated. It is up to you to override this method in your own models to return something meaningful. e.g.,
 ```php
-use Venturecraft\Revisionable\Revisionable;
+use Maclof\Revisionable\Revisionable;
 
 class Article extends Revisionable
 {
@@ -186,6 +186,6 @@ $object->disableRevisionField(array('title', 'content')); // Disables title and 
 ## Contributing
 
 Contributions are encouraged and welcome; to keep things organised, all bugs and requests should be
-opened in the github issues tab for the main project, at [venturecraft/revisionable/issues](https://github.com/venturecraft/revisionable/issues)
+opened in the github issues tab for the main project, at [maclof/revisionable/issues](https://github.com/maclof/revisionable/issues)
 
 All pull requests should be made to the develop branch, so they can be tested before being merged into the master branch.
