@@ -8,7 +8,6 @@
  */
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
-use Illuminate\Support\ServiceProvider;
 
 class Revisionable extends Eloquent
 {

@@ -9,26 +9,27 @@
  * (c) Venture Craft <http://www.venturecraft.com.au>
  */
 
-class Revision extends \Eloquent
-{
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
+class Revision extends Eloquent
+{
     public $table = 'revisions';
+
     protected $revisionFormattedFields = array();
 
     protected $revisionNullString = 'nothing';
 
     protected $revisionUnknownString = 'unknown';
 
-
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
     }
 
-
     /**
      * Revisionable
      * Grab the revision history for the model that is calling
+     *
      * @return array revision history
      */
     public function revisionable()
@@ -36,56 +37,58 @@ class Revision extends \Eloquent
         return $this->morphTo();
     }
 
-
     /**
      * Field Name
      * Returns the field that was updated, in the case that it's a foreighn key
      * denoted by a suffic of "_id", then "_id" is simply stripped
+     *
      * @return string field
      */
     public function fieldName()
     {
-        if (strpos($this->key, '_id')) {
+        if(strpos($this->key, '_id'))
+        {
             return str_replace('_id', '', $this->key);
-        } else {
-            return $this->key;
         }
-    }
 
+        return $this->key;
+    }
 
     /**
      * Old Value
      * Grab the old value of the field, if it was a foreign key
      * attempt to get an identifying name for the model
+     *
      * @return string old value
      */
     public function oldValue()
     {
-
-        if (is_null($this->old_value) OR $this->old_value == '') {
+        if(is_null($this->old_value) or strlen($this->old_value) == 0)
+        {
             return $this->revisionNullString;
         }
 
-        try {
-            if (strpos($this->key, '_id')) {
+        try
+        {
+            if(strpos($this->key, '_id'))
+            {
                 $model = str_replace('_id', '', $this->key);
                 $item  = $model::find($this->old_value);
 
-                if (!$item) {
+                if(!$item)
+                {
                     return $this->format($this->key, $this->revisionUnknownString);
                 }
 
                 return $this->format($this->key, $item->identifiableName());
             }
-        } catch (Exception $e) {
-            // Just a failsafe, in the case the data setup isn't as expected
-            // Nothing to do here.
+        }
+        catch (Exception $e)
+        {
+            // Just a failsafe, in the case the data setup isn't as expected.
         }
 
-        // if there was an issue
-        // or, if it's a normal value
         return $this->format($this->key, $this->old_value);
-
     }
 
 
@@ -93,40 +96,43 @@ class Revision extends \Eloquent
      * New Value
      * Grab the new value of the field, if it was a foreign key
      * attempt to get an identifying name for the model
+     *
      * @return string old value
      */
     public function newValue()
     {
-
-        if (is_null($this->new_value) OR $this->new_value == '') {
+        if(is_null($this->new_value) or strlen($this->new_value) == '')
+        {
             return $this->revisionNullString;
         }
 
-        try {
-            if (strpos($this->key, '_id')) {
+        try
+        {
+            if(strpos($this->key, '_id'))
+            {
                 $model = str_replace('_id', '', $this->key);
                 $item  = $model::find($this->new_value);
 
-                if (!$item) {
+                if(!$item)
+                {
                     return $this->format($this->key, $this->revisionUnknownString);
                 }
 
                 return $this->format($this->key, $item->identifiableName());
             }
-        } catch (Exception $e) {
-            // Just a failsafe, in the case the data setup isn't as expected
-            // Nothing to do here.
+        }
+        catch(Exception $e)
+        {
+            // Just a failsafe, in the case the data setup isn't as expected.
         }
 
-        // if there was an issue
-        // or, if it's a normal value
         return $this->format($this->key, $this->new_value);
-
     }
 
 
     /**
      * User Responsible
+     *
      * @return User user responsible for the change
      */
     public function userResponsible()
@@ -134,14 +140,6 @@ class Revision extends \Eloquent
         return \User::find($this->user_id);
     }
 
-
-    /*
-     * Egzamples:
-    array(
-        'public' => 'boolean:Yes|No',
-        'minimum'  => 'string:Min: %s'
-    )
-     */
     /**
      * Format the value according to the $revisionFormattedFields array
      *
@@ -152,16 +150,15 @@ class Revision extends \Eloquent
      */
     public function format($key, $value)
     {
-        $model                   = $this->revisionable_type;
-        $model                   = new $model;
+        $model = $this->revisionable_type;
+        $model = new $model;
         $revisionFormattedFields = $model->getRevisionFormattedFields();
 
-        if (isset($revisionFormattedFields[$key])) {
+        if(isset($revisionFormattedFields[$key]))
+        {
             return FieldFormatter::format($key, $value, $revisionFormattedFields);
-        } else {
-            return $value;
         }
+
+        return $value;
     }
-
-
 }
