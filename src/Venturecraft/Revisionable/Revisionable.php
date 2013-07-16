@@ -7,77 +7,109 @@
  *
  */
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\ServiceProvider;
 
-class Revisionable extends \Eloquent
+class Revisionable extends Eloquent
 {
-
+    /**
+     * An array of all of the original data.
+     *
+     * @var array
+     */
     protected $originalData;
+
+    /**
+     * An array of all of the updated data.
+     *
+     * @var array
+     */
     protected $updatedData;
+
+    /**
+     * Whether or not the current model operation is an update.
+     *
+     * @var bool
+     */
     protected $isUpdating;
 
+    /**
+     * Whether or not we should keep revisions of the model.
+     *
+     * @var bool
+     */
     protected $revisionEnabled = true;
 
     /**
-     * A list of fields that should have
-     * revisions kept for the model.
+     * A list of fields that should have revisions kept for the model.
+     *
+     * @var array
      */
     protected $keepRevisionOf = array();
 
     /**
-     * A list of fields that should be ignored when keeping
-     * revisions of the model.
+     * A list of fields that should be ignored when keeping revisions of the model.
+     *
+     * @var array
      */
     protected $dontKeepRevisionOf = array();
 
 
     /**
      * Keeps the list of values that have been updated
+     *
      * @var array
      */
     protected $dirty = array();
 
+    /**
+     * Returns a collection of the revision history.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function revisionHistory()
     {
         return $this->morphMany('\Venturecraft\Revisionable\Revision', 'revisionable');
     }
 
-
     /**
-     * Create the event listeners for the saving and saved events
-     * This lets us save revisions whenever a save is made, no matter the
-     * http method.
+     * Create the event listeners for the saving and saved events.
      *
+     * @param array $options
+     * @return bool
      */
     public function save(array $options = array())
     {
-
         $this->beforeSave();
-        $saved = parent::save($options);
-        if ($saved) {
+
+        if(parent::save($options))
+        {
             $this->afterSave();
+
+            return true;
         }
 
-        return $saved;
-
+        return false;
     }
 
-
     /**
-     * Invoked before a model is saved. Return false to abort the operation.
+     * Called before a model is saved.
      *
-     * @return bool
+     * @return void
      */
     public function beforeSave()
     {
-
-        if ($this->revisionEnabled) {
+        if($this->revisionEnabled)
+        {
             $this->originalData = $this->original;
-            $this->updatedData  = $this->attributes;
+            $this->updatedData = $this->attributes;
+
             // we can only safely compare basic items,
             // so for now we drop any object based items, like DateTime
-            foreach ($this->updatedData as $key => $val) {
-                if (gettype($val) == 'object') {
+            foreach($this->updatedData as $key => $val)
+            {
+                if(is_object($val))
+                {
                     unset($this->originalData[$key]);
                     unset($this->updatedData[$key]);
                 }
@@ -86,7 +118,6 @@ class Revisionable extends \Eloquent
             $this->dirty = $this->getDirty();
             $this->isUpdating = $this->exists;
         }
-
     }
 
 
@@ -97,14 +128,13 @@ class Revisionable extends \Eloquent
      */
     public function afterSave()
     {
-        // check if the model already exists
-        if ($this->revisionEnabled AND $this->isUpdating) {
-            // if it does, it means we're updating
+        // Check if revisions are enabled and we're performing an update
+        if($this->revisionEnabled AND $this->isUpdating)
+        {
+            $changes = $this->changedRevisionableFields();
 
-            $changes_to_record = $this->changedRevisionableFields();
-
-            foreach ($changes_to_record as $key => $change) {
-
+            foreach($changes as $key => $change)
+            {
                 $revision                    = new Revision();
                 $revision->revisionable_type = get_class($this);
                 $revision->revisionable_id   = $this->id;
@@ -113,27 +143,28 @@ class Revisionable extends \Eloquent
                 $revision->new_value         = $this->updatedData[$key];
                 $revision->user_id           = (\Auth::user() ? \Auth::user()->id : null);
                 $revision->save();
-
             }
-
         }
-
     }
 
 
     /**
-     * Get all of the changes that have been made, that are also supposed
-     * to have their changes recorded
+     * Get an array of all of the fields which we keep track of and have been changed.
+     *
      * @return array fields with new data, that should be recorded
      */
-    private function changedRevisionableFields()
+    protected function changedRevisionableFields()
     {
+        $fields = array();
 
-        $changes_to_record = array();
-        foreach ($this->dirty as $key => $value) {
-            if ($this->isRevisionable($key)) {
-                $changes_to_record[$key] = $value;
-            } else {
+        foreach($this->dirty as $key => $value)
+        {
+            if($this->isRevisionable($key))
+            {
+                $fields[$key] = $value;
+            }
+            else
+            {
                 // we don't need these any more, and they could
                 // contain a lot of data, so lets trash them.
                 unset($this->updatedData[$key]);
@@ -141,20 +172,17 @@ class Revisionable extends \Eloquent
             }
         }
 
-        return $changes_to_record;
-
+        return $fields;
     }
 
     /**
-     * Check if this field should have a revision kept
+     * Check if this field should have a revision kept for it.
      *
      * @param  string $key
-     *
-     * @return boolean
+     * @return bool
      */
-    private function isRevisionable($key)
+    protected function isRevisionable($key)
     {
-
         // If the field is explicitly revisionable, then return true.
         // If it's explicitly not revisionable, return false.
         // Otherwise, if neither condition is met, only return true if
@@ -165,19 +193,13 @@ class Revisionable extends \Eloquent
         return empty($this->keepRevisionOf);
     }
 
-
-    public function getRevisionFormattedFields()
-    {
-        return $this->revisionFormattedFields;
-    }
-
-
     /**
      * Identifiable Name
      * When displaying revision history, when a foreigh key is updated
      * instead of displaying the ID, you can choose to display a string
      * of your choice, just override this method in your model
      * By default, it will fall back to the models ID.
+     *
      * @return string an identifying name for the model
      */
     public function identifiableName()
@@ -186,18 +208,20 @@ class Revisionable extends \Eloquent
     }
 
     /**
-     * Disable a revisionable field temporarily
+     * Disable a single field or an array of fields from being kept revisions of.
      * 
      * @param mixed $field
-     * 
      * @return void
      */
     public function disableRevisionField($field)
     {
         if(is_array($field))
+        {
             $this->dontKeepRevisionOf = array_merge($field, $this->dontKeepRevisionOf);
+        }
         else
+        {
             $this->dontKeepRevisionOf[] = $field;
+        }
     }
-
 }
