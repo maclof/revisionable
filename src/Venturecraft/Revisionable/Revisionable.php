@@ -12,9 +12,9 @@ use Illuminate\Support\ServiceProvider;
 class Revisionable extends \Eloquent
 {
 
-    private $originalData;
-    private $updatedData;
-    private $updating;
+    protected $originalData;
+    protected $updatedData;
+    protected $isUpdating;
 
     protected $revisionEnabled = true;
 
@@ -84,7 +84,7 @@ class Revisionable extends \Eloquent
             }
 
             $this->dirty = $this->getDirty();
-            $this->updating = $this->exists;
+            $this->isUpdating = $this->exists;
         }
 
     }
@@ -98,7 +98,7 @@ class Revisionable extends \Eloquent
     public function afterSave()
     {
         // check if the model already exists
-        if ($this->revisionEnabled AND $this->updating) {
+        if ($this->revisionEnabled AND $this->isUpdating) {
             // if it does, it means we're updating
 
             $changes_to_record = $this->changedRevisionableFields();
