@@ -16,7 +16,7 @@ Revisionable is installable via [composer](http://getcomposer.org/doc/00-intro.m
 
 Add the following to the `require` section of your projects composer.json file:
 ```php
-"maclof/revisionable": "1.*",
+"maclof/revisionable": "dev-master",
 ```
 
 Run composer update to download the package
