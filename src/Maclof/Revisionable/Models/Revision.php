@@ -1,4 +1,4 @@
-<?php namespace Maclof\Revisionable;
+<?php namespace Maclof\Revisionable\Models;
 
 /**
  * Revision
