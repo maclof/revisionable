@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRevisionsTable extends Migration {
-
+class CreateRevisionsTable extends Migration
+{
 	/**
 	 * Run the migrations.
 	 *
@@ -34,5 +34,4 @@ class CreateRevisionsTable extends Migration {
 	{
 		Schema::drop('revisions');
 	}
-
 }
