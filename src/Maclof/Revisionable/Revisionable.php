@@ -8,6 +8,7 @@
  */
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Maclof\Revisionable\Models\Revision;
 
 class Revisionable extends Eloquent
 {
